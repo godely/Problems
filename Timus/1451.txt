@@ -1,0 +1,25 @@
+//by stor
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
+#define fr(a,b,c) for(int a = b; a < c; a++)
+#define rp(a,b) fr(a,0,b)
+#define ll long long
+#define MAXN 2001
+#define RAZAO 0
+#define TAM 1
+
+using namespace std;
+
+struct PT {
+	double x, y;
+	PT() {}
+	PT(double x, double y) : x(x), y(y) {}
+	
+	PT operator+(const PT &p) { return PT(x+p.x, y+p.y); }
+	PT operator-(const PT &p) { return PT(x-p.x, y-p.y); }
+	PT operator*(double t) { return PT(x*t, y*t); }
+	PT operator/(double t) { return PT(x/t, y/t); }
+	double operator*(const PT &p) { return x*p.x + y*p.y; }
+	double operator^(const PT &p) { return ((*this)*p)/(sqrt((*this)*(*this))); }
+}

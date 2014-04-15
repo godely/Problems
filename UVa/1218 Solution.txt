@@ -1,0 +1,9 @@
+Chamo min((0,0,-1) , 1+(0,1,-1))
+
+0- Eh branco e um filho tem que ser preto
+	Neste caso, exatamente 1 dos filhos vai pra 1+"eh preto", enquanto
+	os outros vão pra "eh branco e um filho tem que ser preto"
+1- Eh preto
+	Mínimo entre chamar cada filho para "eh branco" e 1+"eh preto"
+2- Eh branco
+	Desço os filhos para o estado "eh branco e um filho tem que ser preto"

@@ -1,0 +1,35 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int fun[1010], dizzy[1010];
+
+int dp[2][20010];
+
+#define inf 0x3f3f3f3f
+
+int main() {
+	int n,k,l;
+	while(scanf("%d %d %d",&n,&k,&l) && (n|k|l)) {
+		int maxF = 0;
+		for(int i = 0; i < n; ++i) {
+			scanf("%d %d",&fun[i],&dizzy[i]);
+			maxF += fun[i];
+		}
+		memset(dp,inf,sizeof dp);
+		dp[0][0] = dp[1][0] = 0;
+		if(dizzy[0] <= l) dp[0][fun[0]] = dizzy[0];
+		int res = 0;
+		for(int ct = 1, i = 1; ct < n; ++ct, i = 1-i) {
+			for(int j = maxF; j >= 0; --j) {
+				dp[i][j] = max(dp[1-i][j]-k,0);
+				if(j >= fun[ct] && dp[i][j] > dp[1-i][j-fun[ct]]+dizzy[ct]) dp[i][j] = dp[1-i][j-fun[ct]]+dizzy[ct];
+				if (dp[i][j] > l) dp[i][j]=inf;
+				else res = max(res,j);
+				//else cout << ct << " " << j << " " << dp[i][j] << endl;
+			}
+		}
+		printf("%d\n",res);
+	}
+	return 0;
+}

@@ -1,0 +1,35 @@
+x = py + qy + qt
+
+x = (x/k)*p + (x/k)*q + qt
+
+
+1º caso
+x = (x/k)*(p+q)
+
+p+q = k
+p = k-q
+
+
+2º caso
+x = [x/k]*(p+q) + q
+x = [x/k]*A + q
+q = x%k
+
+
+x = (x/k)*A + (x - (x/k)*k)
+x = (x/k)*A + x - (x/k)*k
+(x/k)*A = (x/k)*k
+A = k
+p+q = k
+p = k-q
+
+
+x = p*(x/k) + q*[x/k]
+x = p*(x/k) + q*(x/k) + q
+x = (x/k)*(p+q) + q
+Quando chega nesse momento, suponha agora que (p+q) = k, obtendo o seguinte:
+x = (x/k)*k + q
+Ou seja, q = x - (x/k)*k = x%k
+Então,
+k = p + q
+p = k - q = k - x%k
