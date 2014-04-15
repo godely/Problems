@@ -1,72 +1,94 @@
-#include <iostream>
-#include <cstring>
+#include <cstdio>
 #include <cstdlib>
-#include <ctime>
+#include <cstring>
+#include <algorithm>
+#include <vector>
+#include <iostream>
+#include <map>
+#include <utility>
+#include <iostream>
+#include <set>
+#define mp make_pair
 using namespace std;
-const int MAX = 1100000;
-const long long MAXA = 1000000;
-int prime[MAX], nprime = 0;
-int cnt = 0, maxDeep;
-int ran[MAX];
-bool vised[MAX];
+#define fr(a,b,c) for(int a = b; a < c; a++)
+#define rp(a,b) fr(a,0,b)
+#define cl(a,b) memset(a,b,sizeof a)
+#define mp make_pair
+#define F first
+#define S second
+typedef long long ll;
+typedef unsigned long long ull;
+typedef pair<int,int> pii;
+#define MAXN 1000001
 
-void dfs(long long p, int x, int d) {
-  if(d == maxDeep) {
-    if(p <= MAXA) ran[cnt++] = p;
-    return;
-  }
-  while(x < nprime) {
-    if(p * prime[x] > MAXA) return;
-    dfs(p * prime[x], x, d + 1);
-    x++;
-  }
+bool prm[MAXN+10];
+int prime[MAXN+10], np;
+int fat[MAXN+10];
+int bucket[1010][1010];
+
+void sieve() {
+	cl(prm,1);
+	prm[0] = prm[1] = 0;
+	for (int i = 4; i <= MAXN; i+=2) prm[i] = 0, fat[i] = 2;
+	for (int i = 3; i <= 1000; i+=2) {
+		if (prm[i]) {
+			for (int j = i*i; j <= MAXN; j+=i) {
+				if (prm[j]) prm[j] = 0, fat[j] = i;
+			}
+		}
+	}
+	np = 0;
+	rp(i,MAXN) {
+		if (prm[i]) prime[np++] = i, fat[i] = i;
+	}
 }
 
-void init() {
-  memset(vised, true, sizeof(vised));
-  for(int i = 2; i < MAX; i++) {
-    if(vised[i])
-    for(int j = i << 1; j < MAX; j += i)
-      vised[j] = false;
-  }
-  for(int i = 2; i < MAX; i++)
-    if(vised[i]) prime[nprime++] = i;
-  for(maxDeep = 1; maxDeep < 20; maxDeep++) {
-    dfs(1, 0, 0);
-    printf("%d: %d\n", maxDeep, cnt);
-  }
-}
-
-void decompose(int a) {
-  int i = 0;
-  while(a != 1) {
-    while(a % prime[i] == 0) {
-      printf("%d", prime[i]);
-      a /= prime[i];
-      if(a != 1) putchar(' ');
-      else putchar('\n');
-    }
-    i++;
-  }
+int deep;
+int seq[MAXN*10], sz = 0;
+void bt(int p, int d, ll m) {
+	if (d == deep) {
+		if(m < MAXN) seq[sz++] = m;
+	} else {
+		for (; p < np; p++) {
+			if (m*prime[p] <= MAXN) bt(p, d+1, m*prime[p]);
+			else break;
+		}
+	}
 }
 
 int main() {
-  init();
-  int t;
-  scanf("%d", &t);
-  for(int nc = 1; nc <= t; nc++) {
-    int k, i;
-    int a, b;
-    scanf("%d%d%d", &a, &b, &k);
-    if(k > (b - a) / 2) {
-      for(i = MAX - 1, k = b - a - k + 2; k; i--) if(ran[i] >= a && ran[i] <= b) k--; 
-      ++i;
-    } else {
-      for(i = 0; k; i++) if(ran[i] >= a && ran[i] <= b) k--; 
-      --i;
-    }
-    printf("Case %d: ", nc);
-    decompose(ran[i]);
-  }
-  return 0;
+	sieve();
+	for (deep = 1; deep <= 19; deep++) bt(0,0,1);
+
+	int sq = 1000;
+	rp(i,sq) {
+		rp(j,sq) {
+			if (i*sq+j < sz) bucket[i][j] = seq[i*sq+j];
+			else bucket[i][j] = 1000001;
+		}
+		sort(bucket[i],bucket[i]+sq);
+	}
+
+	int T, A, B, K, cas = 1;
+	scanf("%d", &T);
+	while (T--) {
+		scanf("%d%d%d", &A, &B, &K);
+		int i = 0;
+		for (; i < sq; i++) {
+			int x = upper_bound(bucket[i], bucket[i]+sq, B) - lower_bound(bucket[i], bucket[i]+sq, A);
+			if (K - x > 0) K-=x;
+			else {
+				for (i = i*sq; i < sz && K; i++) if (seq[i] >= A && seq[i] <= B) K--;
+				i--;
+				break;
+			}
+		}
+		printf("Case %d:", cas++);
+		int p = seq[i];
+		while (p > 1) {
+			printf(" %d", fat[p]);
+			p/=fat[p];
+		}
+		puts("");
+	}
 }

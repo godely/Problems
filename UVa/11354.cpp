@@ -1,102 +1,115 @@
- #include <bits/stdc++.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
+#include <iostream>
+#include <algorithm>
 using namespace std;
 #define fr(a,b,c) for (int a = b; a < c; a++)
 #define rp(a,b) fr(a,0,b)
-#define MAXN 81000
-#define MAXM 1010000
+#define cl(a,b) memset(a,b,sizeof a)
+#define sf(a) scanf("%d", &a)
+#define sf2(a,b) scanf("%d%d", &a, &b)
+#define sf3(a,b,c) scanf("%d%d%d", &a, &b, &c)
+#define sf4(a,b,c,d) scanf("%d%d%d%d", &a, &b, &c, &d)
+typedef pair<int,int> pii;
+#define MP make_pair
+#define F first
+#define S second
+#define oo 0x3f3f3f3f
 
-struct edge {
-	int a, b, w;
-	edge() {}
-	edge(int a, int b, int w) : a(a), b(b), w(w) {}
-	
-	bool operator<(const edge &q) const {
-		return w < q.w;
-	}
-} e[MAXM];
+#define MAXN 51000
+#define MAXM 210000
 
+int N, M, Q;
 int rep[MAXN];
-int findSet(int a) { return (a == rep[a]) ? a : rep[a] = findSet(rep[a]); }
-void unionSet(int a, int b) { rep[findSet(a)] = findSet(b); }
-bool sameSet(int a, int b) { return findSet(a) == findSet(b); }
+pair<int,pii> are[MAXM];
+
+int dept;
+int findset(int x) { return (x == rep[x]) ? x : rep[x] = findset(rep[x]); }
+bool unionset(int x, int y) { return (findset(x) != findset(y)) ? rep[findset(x)] = findset(y), true : false; }
 
 #define add(a,b,c) to[z] = b, cost[z] = c, ant[z] = adj[a], adj[a] = z++
 int to[MAXM], cost[MAXM], ant[MAXM], adj[MAXN], z;
-int N, M, S;
 
-int LIM, par[MAXN][35], dp[MAXN][35], level[MAXN];
-void getParents(int x) {
-	for (int i = adj[x]; ~i; i = ant[i]) {
-		if (to[i] != par[x][0]) {
-			par[to[i]][0] = x;
-			dp[to[i]][0] = cost[i];
-			level[to[i]] = level[x]+1;
-			getParents(to[i]);
+int pai[MAXN][20];
+int dp[MAXN][20];
+int level[MAXN];
+
+void dfs(int x) {
+	for (int y = adj[x]; ~y; y = ant[y]) {
+		if (to[y] != pai[x][0]) {
+			dp[to[y]][0] = cost[y];
+			pai[to[y]][0] = x;
+			level[to[y]] = level[x] + 1;
+			dfs(to[y]);
 		}
 	}
 }
 
-void preLCA() {
-	memset(par,-1,sizeof par);
-	memset(dp,0,sizeof dp);
+void prelca(int root) {
+	cl(pai,-1);
+	cl(dp,0);
 	level[0] = 0;
-	getParents(0);
-	
-	int _ = N;
-	LIM = 1;
-	while (_ > 1) _/=2, LIM++;
-	
-	fr(k,1,LIM+1) rp(i,N) {
-		par[i][k] = par[par[i][k-1]][k-1];
-		dp[i][k] = max(dp[i][k-1],dp[par[i][k-1]][k-1]);
+	dfs(root);
+	bool keep = 1;
+	for (dept = 1; keep; dept++) {
+		keep = 0;
+		for (int j = 0; j < N; j++) {
+			dp[j][dept] = dp[j][dept-1];
+			if (~pai[j][dept-1]) {
+				pai[j][dept] = pai[pai[j][dept-1]][dept-1];
+				dp[j][dept] = max(dp[j][dept-1], dp[pai[j][dept-1]][dept-1]);
+				if (~pai[j][dept]) keep = 1;
+			}
+		}
 	}
 }
 
 int query(int a, int b) {
-	if (a == b) return 0;
 	if (level[a] < level[b]) swap(a,b);
-	int dif = level[a]-level[b];
-	int ans = 0;
-	for (int i = 0; dif > 0; i++) {
-		if (dif&1) {
-			ans = max(ans,dp[a][i]);
-			a = par[a][i];
-		}
-		dif>>=1;
-	}
-	for (int i = LIM; i >= 0; i--) {
-		if (par[a][i] != -1 && par[a][i] != par[b][i]) {
-			ans = max(ans,max(dp[a][i],dp[b][i]));
-			a = par[a][i];
-			b = par[b][i];
+	int res = 0;
+	for (int i = dept; i >= 0; i--) {
+		if ((~pai[a][i]) && level[ pai[a][i] ] >= level[b]) {
+			res = max(res,dp[a][i]);
+			a = pai[a][i];
 		}
 	}
-	if (a != b) ans = max(ans,max(dp[a][0],dp[b][0]));
-	return ans;
+	if (a == b) return res;
+	for (int i = dept; i >= 0; i--) {
+		if (pai[a][i] != pai[b][i]) {
+			res = max(res,max(dp[a][i],dp[b][i]));
+			a = pai[a][i];
+			b = pai[b][i];
+		}
+	}
+	return max(res,max(dp[a][0],dp[b][0]));
 }
 
 int main() {
-	int a, b, w;
 	bool ok = 0;
-	while (scanf("%d%d", &N, &M) == 2) {
+	while (sf2(N,M) == 2) {
 		if (ok) puts("");
 		else ok = 1;
+		cl(adj,-1); z = 0;
 		rp(i,N) rep[i] = i;
-		rp(i,M) scanf("%d%d%d", &a, &b, &w), e[i] = edge(a-1,b-1,w);
-		sort(e,e+M);
-		memset(adj,-1,sizeof adj); z = 0;
+		int x, y, d;
 		rp(i,M) {
-			if (!sameSet(e[i].a,e[i].b)) {
-				unionSet(e[i].a,e[i].b);
-				add(e[i].a,e[i].b,e[i].w);
-				add(e[i].b,e[i].a,e[i].w);
+			sf3(x,y,d); x--, y--;
+			are[i] = MP(d,MP(x,y));
+		}
+		sort(are,are+M);
+		rp(i,M) {
+			if (unionset(are[i].S.F,are[i].S.S)) {
+				add(are[i].S.F, are[i].S.S, are[i].F);
+				add(are[i].S.S, are[i].S.F, are[i].F);
 			}
 		}
-		scanf("%d", &S);
-		preLCA();
-		rp(i,S) {
-			scanf("%d%d", &a, &b); a--, b--;
-			printf("%d\n", query(a,b));
+		prelca(0);
+		sf(Q);
+		while (Q--) {
+			sf2(x,y);
+			printf("%d\n", query(x-1,y-1));
 		}
 	}
 	return 0;

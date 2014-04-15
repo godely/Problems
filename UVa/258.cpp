@@ -8,7 +8,6 @@
 #include <utility>
 #include <iostream>
 #include <set>
-#include <cassert>
 #define mp make_pair
 using namespace std;
 #define fr(a,b,c) for(int a = b; a < c; a++)
@@ -32,13 +31,32 @@ int pr[100][100];
 
 int di[] = {1,0,-1,0};
 int dj[] = {0,1,0,-1};
-char dc[] = {92, 47};
+char dc[] = {'\\', '/'};
 
 bool valid(int i, int j) { return i >= 0 && i < n && j >= 0 && j < m; }
 
-bool dfs(int i, int j, int d) {
+bool dfs(int i, int j, int d, bool ini = 0) {
 	vis[i][j][d] = 1;
-	if (g[i][j] == '.') return 1;
+	//printf("%d %d, %d\n", i, j, d);
+	if ((i == 0 || i == n-1 || j == 0 || j == m-1) && !ini) {
+		if (g[i][j] == '.') return 1;
+		if ((i == 0 && j == 0) || (i == 0 && j == m-1) || (i == n-1 && j == 0) || (i == n-1 && j == m-1)) return 1;
+		if (i == 0) {
+			if (d == 1) g[i][j] = '/';
+			else g[i][j] = '\\';
+		} else if (i == n-1) {
+			if (d == 1) g[i][j] = '\\';
+			else g[i][j] = '/';
+		} else if (j == 0) {
+			if (d == 0) g[i][j] = '/';
+			else g[i][j] = '\\';
+		} else {
+			if (d == 0) g[i][j] = '\\';
+			else g[i][j] = '/';
+		}
+		return 1;
+	}
+	//printf(">> %d %d, %d\n", i, j, d);
 
 	int k = (d+1)&3;
 	int ni = to[i][j][k].F;
@@ -66,6 +84,10 @@ int main() {
 	bool ok = 0;
 	while (scanf("%d%d", &m, &n) == 2 && m != -1) {
 		rp(i,n) scanf("%s", g[i]);
+		if (g[0][0] != '*' && g[0][0] != '.') g[0][0] = '\\';
+		if (g[n-1][0] != '*' && g[n-1][0] != '.') g[n-1][0] = '/';
+		if (g[0][m-1] != '*' && g[0][m-1] != '.') g[0][m-1] = '/';
+		if (g[n-1][m-1] != '*' && g[n-1][m-1] != '.') g[n-1][m-1] = '\\';
 		sz = 0;
 		rp(i,n) {
 			if (g[i][0] != '*') ns[sz++] = mp(mp(i,0),1);
@@ -75,10 +97,8 @@ int main() {
 			if (g[0][j] != '*') ns[sz++] = mp(mp(0,j),0);
 			if (g[n-1][j] != '*') ns[sz++] = mp(mp(n-1,j),2);
 		}
-		int aff = 0;
 		rp(i,n) rp(j,m) {
-			if (g[i][j] == 47 || g[i][j] == 92) {
-				aff++;
+			if (g[i][j] == '/' || g[i][j] == '\\') {
 				rp(k,4) {
 					int ni = i+di[k], nj = j+dj[k];
 					while (valid(ni,nj) && g[ni][nj] == '.') ni+=di[k], nj+=dj[k];
@@ -92,13 +112,8 @@ int main() {
 		cl(pr,-1);
 		int ni = ns[0].F.F, nj = ns[0].F.S, k = ns[0].S;
 		while (valid(ni,nj) && g[ni][nj] == '.') ni+=di[k], nj+=dj[k];
-		if (valid(ni,nj)) {
-			if (!dfs(ni,nj,k)) {
-				assert(false);
-				while(1);
-			}
-		}
-
+		if (valid(ni,nj)) dfs(ni,nj,k,1);
+		//printf("%d %d, %d\n", ni, nj, k);
 		if (ok) puts("");
 		else ok = 1;
 		rp(i,n) {

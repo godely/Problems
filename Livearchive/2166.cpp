@@ -21,7 +21,7 @@ int c[3], a[3], b[3], tot;
 int x[3], z[3], C;
 int fila[3000000];
 int mark[160][160], passo;
-int bfs() {
+int dij() {
 	passo++;
 	fila[0] = a[0];
 	fila[1] = a[1];
@@ -47,12 +47,11 @@ int bfs() {
 
 int main() {
 	cl(mark,0); passo = 0;
-	while (scanf("%d", &c[0]) == 1 && c[0]) {
+	while (scanf("%d", &c[0]) && c[0]) {
 		fr(i,1,3) scanf("%d", &c[i]);
 		rp(i,3) scanf("%d", &a[i]);
 		rp(i,3) scanf("%d", &b[i]);
 		tot = a[0] + a[1] + a[2];
-		printf("%d\n", bfs());
+		printf("%d\n", dij());
 	}
-	return 0;
 }

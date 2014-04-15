@@ -42,11 +42,25 @@ typedef vector<pair<int,int> > vpii;
 #define MAXM 120000
 #define MOD 200003
 
+int gcd(int a, int b) { return (!b) ? a : gcd(b,a%b); }
+
+int T, n, m, mm;
 int main() {
-	int T; scanf("%d", &T);
+	scanf("%d", &T);
 	while (T--) {
 		scanf("%d%d", &n, &m);
-		
+		mm = 0;
+		if (m&1) printf("%d\n", n*((m+1)>>1));
+		else printf("%d\n", n*(m>>1) + ((n+1)>>1));
+		fr(i,1,n) {
+			fr(j,1,n+1) printf("%d %d\n", j, (j+i-1)%n+1);
+			mm+=2;
+			if (mm >= m) break;
+		}
+		if (m%2 == 0) {
+			fr(j,1,((n+1)>>1)+1) printf("%d %d\n", j, (j+n/2-1)%n+1); 
+		}
+		puts("");
 	}
 	return 0;
-}
+}                                                                        

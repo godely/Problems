@@ -40,22 +40,18 @@ int main() {
 			n2 /= d, n1 /= d;
 
 			ll c = ceil(-(double) x / n2), f = floor((double) y / n1);
-			printf("%lld %lld, %lld %lld, %lld %lld\n", x, y, n2, n1, c, f);
-			a = x + n2 * c;
-			b = y - n1 * c;
+			//printf("%lld %lld, %lld %lld\n", x, y, c, f);
+			if (c > f) puts("failed");
+			else {
+				a = x + n2 * c;
+				b = y - n1 * c;
 
-			a1 = x + n2 * f;
-	 		b1 = y - n1 * f;
+				a1 = x + n2 * f;
+		 		b1 = y - n1 * f;
 
-	 		if (a < 0 || b < 0) {
-	 			if (a1 < 0 || b1 < 0) puts("failed");
-	 			else printf("%lld %lld\n", a1, b1);
-	 		} else if (b1 < 0 || a1 < 0) {
-	 			printf("%lld %lld\n", a, b);
-	 		} else {
-	 			if (c1*a + c2*b < c1*a1 + c2*b1) printf("%lld %lld\n", a, b);
-	 			else printf("%lld %lld\n", a1, b1);
-	 		}
+		 		if (c1*a + c2*b < c1*a1 + c2*b1) printf("%lld %lld\n", a, b);
+		 		else printf("%lld %lld\n", a1, b1);
+			}
 		}
 	}
 	return 0;
